@@ -1,9 +1,10 @@
 import path from 'node:path';
 import { Level } from 'level';
 import oldFs from 'node:fs';
-import { Readable } from 'node:stream';
+import { PassThrough, Readable } from 'node:stream';
 import { createInterface } from 'node:readline';
 import { createGunzip } from 'node:zlib';
+import { pipeline } from 'node:stream/promises';
 
 const levelFolder = 'level';
 const modelsFolder = 'fasttext-vecs';
@@ -23,17 +24,27 @@ function makeFolders(rootFolder: string) {
 export async function downloadModel(lang: string, rootFolder = DEFAULT_WECOSSIM_PATH) {
   const url = `https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.${lang}.300.vec.gz`;
   makeFolders(rootFolder);
+  const levelFile = path.join(rootFolder, levelFolder, `cc.${lang}.300.vec.lvl`);
+  const modelFile = path.join(rootFolder, modelsFolder, `cc.${lang}.300.vec.gz`);
 
-  console.log(`Downloading model for ${lang} (this will take a while)...`);
+  console.log(`Downloading model for ${lang} from ${url}`);
+  console.log(`This might take a while...`);
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Failed to download model: ${response.statusText}`);
   }
 
   const nodeStream = Readable.fromWeb(response.body as any);
-  const rl = createInterface({ input: nodeStream });
 
-  const levelFile = path.join(rootFolder, levelFolder, `cc.${lang}.300.vec.lvl`);
+  const teeStream = new PassThrough();
+
+  const fileWriteStream = oldFs.createWriteStream(modelFile);
+  console.log(`Writing level file to ${modelFile}`);
+  pipeline(nodeStream, teeStream, fileWriteStream).catch(console.error);
+
+  const gunzipStream = createGunzip();
+  const rl = createInterface({ input: teeStream.pipe(gunzipStream) });
+
   console.log(`Writing level file to ${levelFile}`);
   const db = new Level<string, Buffer>(levelFile, { valueEncoding: 'buffer' });
 

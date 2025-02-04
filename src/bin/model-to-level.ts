@@ -9,6 +9,6 @@ const modelPath = process.argv[2];
 const levelPath = process.argv[3];
 
 
-modelToLevel(modelPath!, levelPath!, { verbose: true })
+modelToLevel(modelPath!, levelPath!, { verbose: false })
   .then(() => console.log('Done'))
   .catch((err) => console.error(err));
