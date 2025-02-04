@@ -1,6 +1,6 @@
-# We-Cos-Sim
+# we-cos-sim
 
-We-Cos-Sim is a tool for calculating the cosine similarity between words using word embeddings. It leverages FastText vectors to provide similarity scores, which can be useful in various natural language processing tasks.
+we-cos-sim is a tool for calculating the cosine similarity between words using word embeddings. It leverages FastText vectors to provide semantic similarity scores.
 
 ## Features
 
@@ -16,14 +16,14 @@ To install the necessary dependencies, run:
 npm install
 ```
 
-## Usage
+## Usage in CLI
 
 ### Downloading a Model
 
 To download a FastText model for a specific language, use the following command:
 
 ```bash
-node src/bin/download-model.js <lang>
+ts-node src/bin/download-model.ts <lang>
 ```
 
 Replace `<lang>` with the desired language code (e.g., `en` for English).
@@ -33,7 +33,7 @@ Replace `<lang>` with the desired language code (e.g., `en` for English).
 To convert a downloaded model to LevelDB format, use:
 
 ```bash
-node src/bin/model-to-level.js <modelPath> <levelPath>
+ts-node src/bin/model-to-level.ts <modelPath> <levelPath>
 ```
 
 - `<modelPath>`: Path to the downloaded `.vec.gz` file.
@@ -44,11 +44,13 @@ node src/bin/model-to-level.js <modelPath> <levelPath>
 To calculate the cosine similarity between two words, use:
 
 ```bash
-node src/bin/we-cos-sim.js <lang> <word1> <word2>
+ts-node src/bin/we-cos-sim.ts <lang> <word1> <word2>
 ```
 
 - `<lang>`: Language code for the model.
 - `<word1>` and `<word2>`: The words to compare.
+
+## Usage as a library
 
 ## Testing
 
