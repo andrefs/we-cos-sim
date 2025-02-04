@@ -52,7 +52,41 @@ ts-node src/bin/we-cos-sim.ts <lang> <word1> <word2>
 
 ## Usage as a library
 
-## Testing
+## Usage as a library
+
+To use `we-cos-sim` as a library in your Node.js project, you can import the necessary functions and use them as follows:
+
+### Loading a Vector Model
+
+First, load a vector model into a LevelDB instance:
+
+```typescript
+import { loadVec } from 'we-cos-sim/lib/cosSim';
+
+async function loadModel() {
+  const db = await loadVec('/path/to/leveldb');
+  return db;
+}
+```
+
+### Calculating Cosine Similarity
+
+Once the model is loaded, you can calculate the cosine similarity between two words:
+
+```typescript
+import { buildCosSimFn } from 'we-cos-sim/lib/cosSim';
+
+async function calculateSimilarity(db, word1, word2) {
+  const cosSim = await buildCosSimFn(db);
+  const similarity = await cosSim(word1, word2);
+  console.log(`Cosine similarity between "${word1}" and "${word2}":`, similarity);
+}
+
+// Usage
+loadModel().then(db => calculateSimilarity(db, 'word1', 'word2'));
+```
+
+This example demonstrates how to load a model and calculate the cosine similarity between two words using the `we-cos-sim` library.
 
 To run the tests, use:
 
