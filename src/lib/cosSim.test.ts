@@ -17,6 +17,32 @@ describe('buildCosSimFn', () => {
     const cosSim = await buildCosSimFn(testModel);
     expect(cosSim('the', 'and')).toBeCloseTo(0.437)
   }, 0)
+
+  it('should return 1 for the same word', async () => {
+    const cosSim = await buildCosSimFn(testModel);
+    expect(cosSim('the', 'the')).toBeCloseTo(1);
+  })
+
+  it('should return a high value for similar words', async () => {
+    const cosSim = await buildCosSimFn(testModel);
+    expect(cosSim('airbnb', 'AirBnB')).toBeCloseTo(0.9281)
+  })
+
+
+  it('should return null for words not in the model', async () => {
+    const cosSim = await buildCosSimFn(testModel);
+    expect(cosSim('the', 'asdf')).toBeNull();
+  })
+
+  it('should return null if cannot find word matching case', async () => {
+    const cosSim = await buildCosSimFn(testModel);
+    expect(cosSim('the', 'aIrbNb')).toBeNull();
+  })
+
+  it('should return the cosine similarity for words with different case if allowDifferentCase is true', async () => {
+    const cosSim = await buildCosSimFn(testModel, true);
+    expect(cosSim('the', 'aIrbNb')).toBeCloseTo(0.0800);
+  })
 });
 
 
