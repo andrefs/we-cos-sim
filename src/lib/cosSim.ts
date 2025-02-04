@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import { createGunzip } from 'node:zlib';
 
-async function loadVec(path: string) {
+export async function loadVec(path: string) {
   const hash: { [word: string]: number[] } = {};
 
   const file = await fs.readFile(path);
@@ -30,13 +30,16 @@ export async function buildCosSimFn(path: string, allowDifferentCase = false) {
       return null;
     }
 
-    const dot = vec1.reduce((acc, cur, i) => acc + cur * vec2[i]!, 0);
-    const norm1 = Math.sqrt(vec1.reduce((acc, cur) => acc + cur ** 2, 0));
-    const norm2 = Math.sqrt(vec2.reduce((acc, cur) => acc + cur ** 2, 0));
-    return dot / (norm1 * norm2);
+    return cosine(vec1, vec2);
   };
 }
 
 
+export function cosine(vec1: number[], vec2: number[]) {
+  const dot = vec1.reduce((acc, cur, i) => acc + cur * vec2[i]!, 0);
+  const norm1 = Math.sqrt(vec1.reduce((acc, cur) => acc + cur ** 2, 0));
+  const norm2 = Math.sqrt(vec2.reduce((acc, cur) => acc + cur ** 2, 0));
+  return dot / (norm1 * norm2);
+}
 
 
