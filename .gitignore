@@ -2,3 +2,5 @@ data
 LOG
 LOG.old
 LOCK
+.aider*
+.env
