@@ -12,12 +12,14 @@ export const DEFAULT_WECOSSIM_PATH = path.join(process.env.HOME!, '.we-cos-sim')
 export const DEFAULT_LEVEL_PATH = path.join(DEFAULT_WECOSSIM_PATH, levelFolder);
 
 function makeFolders(rootFolder: string) {
-
   if (!oldFs.existsSync(rootFolder)) {
     oldFs.mkdirSync(rootFolder);
   }
   if (!oldFs.existsSync(path.join(rootFolder, levelFolder))) {
     oldFs.mkdirSync(path.join(rootFolder, levelFolder));
+  }
+  if (!oldFs.existsSync(path.join(rootFolder, modelsFolder))) {
+    oldFs.mkdirSync(path.join(rootFolder, modelsFolder));
   }
 }
 
@@ -34,19 +36,29 @@ export async function downloadModel(lang: string, rootFolder = DEFAULT_WECOSSIM_
     throw new Error(`Failed to download model: ${response.statusText}`);
   }
 
+  const totalBytes = Number(response.headers.get("Content-Length"));
+  let downloadedBytes = 0;
+
   const nodeStream = Readable.fromWeb(response.body as any);
-
   const teeStream = new PassThrough();
-
   const fileWriteStream = oldFs.createWriteStream(modelFile);
   console.log(`Writing level file to ${modelFile}`);
-  pipeline(nodeStream, teeStream, fileWriteStream).catch(console.error);
+  const downloadStream = pipeline(nodeStream, teeStream, fileWriteStream).catch(console.error);
 
   const gunzipStream = createGunzip();
   const rl = createInterface({ input: teeStream.pipe(gunzipStream) });
 
   console.log(`Writing level file to ${levelFile}`);
   const db = new Level<string, Buffer>(levelFile, { valueEncoding: 'buffer' });
+
+  // Interval to print progress
+  const progressInterval = setInterval(() => {
+    console.log(`Download progress: ${(downloadedBytes / totalBytes * 100).toFixed(2)}%`);
+  }, 5 * 1000);
+
+  nodeStream.on('data', (chunk) => {
+    downloadedBytes += chunk.length;
+  });
 
   for await (const line of rl) {
     const parts = line.split(' ');
@@ -60,7 +72,10 @@ export async function downloadModel(lang: string, rootFolder = DEFAULT_WECOSSIM_
     await db.put(key!, buffer);
   }
 
-  console.log(`Finished writing level file to ${levelFile}`);
+  clearInterval(progressInterval);
+  await downloadStream;
+
+  console.log(`Finished writing files ${modelFile} and ${levelFile}`);
 }
 
 export async function getVec(db: Level<string, Buffer>, word: string) {
