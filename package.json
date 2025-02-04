@@ -1,6 +1,7 @@
 {
   "devDependencies": {
     "@types/node": "22.13.1",
+    "typescript": "5.7.3",
     "vitest": "3.0.5"
   },
   "name": "we-cos-sim",
@@ -8,6 +9,7 @@
   "description": "Use word embeddings to calculate the cosine similarity of words",
   "main": "index.js",
   "dependencies": {
+    "level": "9.0.0",
     "undici-types": "6.20.0"
   },
   "scripts": {

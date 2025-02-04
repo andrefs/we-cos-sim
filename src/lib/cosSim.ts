@@ -1,30 +1,29 @@
-import fs from 'node:fs/promises';
-import { createGunzip } from 'node:zlib';
+import { Level } from 'level';
+import { getVec } from './utils';
 
 export async function loadVec(path: string) {
-  const hash: { [word: string]: number[] } = {};
-
-  const file = await fs.readFile(path);
-  const gunzip = createGunzip();
-  const vec = await new Promise<string>((resolve) => {
-    let data = '';
-    gunzip.on('data', (chunk) => data += chunk);
-    gunzip.on('end', () => resolve(data));
-    gunzip.end(file);
-  });
-
-  for (const line of vec.split('\n')) {
-    const [word, ...vector] = line.split(' ');
-    hash[word!] = vector.map(Number);
+  console.log(`Loading vector file from ${path}`);
+  const db = new Level<string, Buffer>(path, { valueEncoding: 'buffer' });
+  try {
+    await db.open();
   }
-  return hash;
+  catch (err) {
+    console.error(`Failed to open LevelDB at ${path}: ${err}`);
+    process.exit(1);
+  }
+  return db;
 }
 
-export async function buildCosSimFn(path: string, allowDifferentCase = false) {
-  const vec = await loadVec(path);
-  return function cosSim(word1: string, word2: string) {
-    const vec1 = vec[word1] || (allowDifferentCase ? vec[word1.toLowerCase()] : undefined);
-    const vec2 = vec[word2] || (allowDifferentCase ? vec[word2.toLowerCase()] : undefined);
+export async function buildCosSimFn(db: Level<string, Buffer>, allowDifferentCase = false) {
+  return async function cosSim(word1: string, word2: string) {
+    const vec1 = await getVec(db, word1)
+      || (allowDifferentCase
+        ? await getVec(db, word1.toLowerCase())
+        : undefined);
+    const vec2 = await getVec(db, word2)
+      || (allowDifferentCase
+        ? await getVec(db, word2.toLowerCase())
+        : undefined);
 
     if (!vec1 || !vec2) {
       return null;
