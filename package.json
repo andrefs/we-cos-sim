@@ -1,0 +1,23 @@
+{
+  "devDependencies": {
+    "@types/node": "22.13.1"
+  },
+  "name": "we-cos-sim",
+  "version": "0.0.1",
+  "description": "Use word embeddings to calculate the cosine similarity of words",
+  "main": "index.js",
+  "dependencies": {
+    "undici-types": "6.20.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cosine",
+    "word",
+    "embeddings",
+    "fasttext"
+  ],
+  "author": "André Santos",
+  "license": "ISC"
+}
