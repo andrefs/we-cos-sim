@@ -8,8 +8,9 @@ export async function loadVec(path: string) {
     await db.open();
   }
   catch (err) {
-    console.error(`Failed to open LevelDB at ${path}: ${err}`);
-    process.exit(1);
+    const message = `Failed to open LevelDB at ${path}: ${err}`;
+    console.error(message);
+    throw new Error(message);
   }
   return db;
 }
