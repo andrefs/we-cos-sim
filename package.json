@@ -35,7 +35,7 @@
   "scripts": {
     "build": "node build.mjs && npx tsc --emitDeclarationOnly",
     "test": "vitest",
-    "prepublishOnly": "npm run build"
+    "prepare": "npm run build"
   },
   "keywords": [
     "cosine",

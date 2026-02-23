@@ -25,5 +25,8 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Rebuild test database
+        run: node dist/bin/model-to-level.js src/test/en.vec.gz src/test/en-lvl
+
       - name: Run tests
         run: npm test
