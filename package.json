@@ -1,19 +1,41 @@
 {
-  "devDependencies": {
-    "@types/node": "22.13.1",
-    "typescript": "5.7.3",
-    "vitest": "3.0.5"
-  },
   "name": "we-cos-sim",
   "version": "0.0.1",
+  "type": "module",
   "description": "Use word embeddings to calculate the cosine similarity of words",
-  "main": "index.js",
-  "dependencies": {
-    "level": "9.0.0",
-    "undici-types": "6.20.0"
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrefs/we-cos-sim.git"
   },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./lib/cosSim": {
+      "types": "./dist/lib/cosSim.d.ts",
+      "default": "./dist/lib/cosSim.js"
+    },
+    "./lib/utils": {
+      "types": "./dist/lib/utils.d.ts",
+      "default": "./dist/lib/utils.js"
+    }
+  },
+  "bin": {
+    "we-cos-sim": "./dist/bin/we-cos-sim.js",
+    "we-cos-sim-download": "./dist/bin/download-model.js",
+    "we-cos-sim-level": "./dist/bin/model-to-level.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "vitest"
+    "build": "node build.mjs && npx tsc --emitDeclarationOnly",
+    "test": "vitest",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "cosine",
@@ -22,5 +44,19 @@
     "fasttext"
   ],
   "author": "André Santos",
-  "license": "ISC"
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andrefs/we-cos-sim/issues"
+  },
+  "homepage": "https://github.com/andrefs/we-cos-sim#readme",
+  "dependencies": {
+    "level": "^9.0.0",
+    "undici-types": "^6.20.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "esbuild": "0.27.3",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
 }

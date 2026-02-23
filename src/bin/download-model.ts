@@ -8,4 +8,4 @@ if (process.argv.length < 3) {
 const lang = process.argv[2];
 downloadModel(lang!)
   .then(() => console.log('Done'))
-  .catch((err) => console.error(err));
+  .catch((err: Error) => console.error(err));

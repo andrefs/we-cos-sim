@@ -13,19 +13,25 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
-    // We are not transpiling, so preserve our source code and do not emit files
-    "module": "preserve",
-    "noEmit": true,
+    // Emit compiled JavaScript to dist/
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "lib": [
       "es2022"
     ]
   },
   // Include the necessary files for your project
   "include": [
-    "**/*.ts",
-    "**/*.tsx"
+    "src/**/*.ts",
+    "src/**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist",
+    "src/**/*.test.ts"
   ]
 }

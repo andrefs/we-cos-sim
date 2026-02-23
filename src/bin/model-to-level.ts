@@ -1,4 +1,5 @@
-import { modelToLevel } from '../lib/utils'
+import { modelToLevel } from '../lib/utils';
+import type { Level } from 'level';
 
 if (process.argv.length < 4) {
   console.error('Usage: model-to-level <modelPath> <levelPath>');
@@ -11,4 +12,4 @@ const levelPath = process.argv[3];
 
 modelToLevel(modelPath!, levelPath!, { verbose: false })
   .then(() => console.log('Done'))
-  .catch((err) => console.error(err));
+  .catch((err: Error) => console.error(err));

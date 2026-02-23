@@ -4,3 +4,5 @@ LOG.old
 LOCK
 .aider*
 .env
+dist
+node_modules
