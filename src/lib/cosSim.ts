@@ -2,10 +2,11 @@ import { Level } from 'level';
 import { getVec } from './utils';
 
 export async function loadVec(path: string) {
-  console.log(`Loading vector file from ${path}`);
+  console.warn(`Loading vector file from ${path}`);
   const db = new Level<string, Buffer>(path, { valueEncoding: 'buffer' });
   try {
     await db.open();
+    console.warn(`Successfully loaded vector file from ${path}`);
   }
   catch (err) {
     const message = `Failed to open LevelDB at ${path}: ${err}`;
