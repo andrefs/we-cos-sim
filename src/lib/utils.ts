@@ -105,3 +105,31 @@ export async function modelToLevel(modelPath: string, levelPath: string, { verbo
 
   return db;
 }
+
+export async function verifyLevelDb(levelPath: string, sampleWords: string[] = ['the', 'and', 'is']) {
+  const db = new Level<string, Buffer>(levelPath, { valueEncoding: 'buffer' });
+  try {
+    await db.open();
+
+    const keys = [];
+    for await (const key of db.keys()) {
+      keys.push(key);
+    }
+
+    console.log(`Database has ${keys.length} words`);
+
+    for (const word of sampleWords) {
+      const vec = await getVec(db, word);
+      if (vec) {
+        console.log(`✓ '${word}': vector length ${vec.length}, first 3 values: [${vec.slice(0, 3).join(', ')}]`);
+      } else {
+        console.log(`✗ '${word}': not found`);
+      }
+    }
+
+    return keys.length;
+  }
+  finally {
+    await db.close();
+  }
+}
