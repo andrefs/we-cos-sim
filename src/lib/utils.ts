@@ -74,11 +74,14 @@ type LineParser = (line: string) => Promise<void> | void;
 export async function parseVecFile(
   input: NodeJS.ReadableStream,
   db: Level<string, Buffer>,
-  verbose = false
+  verbose: boolean | 'progress' = false
 ) {
   const gunzip = createGunzip();
   const stream = input.pipe(gunzip);
   const rl = createInterface({ input: stream });
+
+  let count = 0;
+  let lastReport = 0;
 
   for await (const line of rl) {
     const parts = line.split(' ');
@@ -87,16 +90,22 @@ export async function parseVecFile(
     }
     const key = parts[0];
     const vector = new Float32Array(parts.slice(1).map(Number));
-    if (verbose) {
+    if (verbose === 'progress' && count > 0 && count % 10000 === 0) {
+      console.log(`Processed ${count} words...`);
+    }
+    else if (verbose === true) {
       console.log(`Writing key ${key}: [${vector.slice(0, 5).join(', ')}...]`);
     }
     const buffer = Buffer.from(vector.buffer);
 
     await db.put(key!, buffer);
+    count++;
   }
+
+  console.log(`Finished processing ${count} words`);
 }
 
-export async function modelToLevel(modelPath: string, levelPath: string, { verbose = false } = {}) {
+export async function modelToLevel(modelPath: string, levelPath: string, { verbose = false }: { verbose?: boolean | 'progress' } = {}) {
   const db = new Level<string, Buffer>(levelPath, { valueEncoding: 'buffer' });
   const stream = oldFs.createReadStream(modelPath);
 
@@ -106,7 +115,8 @@ export async function modelToLevel(modelPath: string, levelPath: string, { verbo
   return db;
 }
 
-export async function verifyLevelDb(levelPath: string, sampleWords: string[] = ['the', 'and', 'is']) {
+export async function verifyLevelDb(levelPath: string, sampleWords?: string[]) {
+  const words = sampleWords ?? ['the', 'and', 'is'];
   const db = new Level<string, Buffer>(levelPath, { valueEncoding: 'buffer' });
   try {
     await db.open();
@@ -118,7 +128,7 @@ export async function verifyLevelDb(levelPath: string, sampleWords: string[] = [
 
     console.log(`Database has ${keys.length} words`);
 
-    for (const word of sampleWords) {
+    for (const word of words) {
       const vec = await getVec(db, word);
       if (vec) {
         console.log(`✓ '${word}': vector length ${vec.length}, first 3 values: [${vec.slice(0, 3).join(', ')}]`);

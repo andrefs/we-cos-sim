@@ -1,15 +1,20 @@
 import { modelToLevel } from '../lib/utils';
-import type { Level } from 'level';
 
-if (process.argv.length < 4) {
-  console.error('Usage: model-to-level <modelPath> <levelPath>');
+const args = process.argv.slice(2);
+const verboseIndex = args.findIndex((a) => a === '-v' || a === '--verbose' || a === '-p' || a === '--progress');
+const verbose = verboseIndex >= 0 ? (args[verboseIndex] === '-p' || args[verboseIndex] === '--progress' ? 'progress' : true) : false;
+
+if (verboseIndex >= 0) {
+  args.splice(verboseIndex, 1);
+}
+
+if (args.length < 2) {
+  console.error('Usage: model-to-level <modelPath> <levelPath> [-v|--verbose|-p|--progress]');
   process.exit(1);
 }
 
-const modelPath = process.argv[2];
-const levelPath = process.argv[3];
+const [modelPath, levelPath] = args as [string, string];
 
-
-modelToLevel(modelPath!, levelPath!, { verbose: false })
+modelToLevel(modelPath, levelPath, { verbose })
   .then(() => console.log('Done'))
   .catch((err: Error) => console.error(err));

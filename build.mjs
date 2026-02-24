@@ -22,7 +22,7 @@ await esbuild.build({
 });
 
 // Copy and build bin files
-const bins = ['src/bin/we-cos-sim.ts', 'src/bin/download-model.ts', 'src/bin/model-to-level.ts'];
+const bins = ['src/bin/we-cos-sim.ts', 'src/bin/download-model.ts', 'src/bin/model-to-level.ts', 'src/bin/verify-level-db.ts'];
 for (const bin of bins) {
   const name = bin.split('/').pop()?.replace('.ts', '.js') ?? '';
   await esbuild.build({
