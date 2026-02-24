@@ -45,10 +45,6 @@ export async function downloadModel(lang: string, rootFolder = DEFAULT_WECOSSIM_
   console.log(`Writing level file to ${modelFile}`);
   const downloadStream = pipeline(nodeStream, teeStream, fileWriteStream).catch(console.error);
 
-  const gunzipStream = createGunzip();
-  const rl = createInterface({ input: teeStream.pipe(gunzipStream) });
-
-  console.log(`Writing level file to ${levelFile}`);
   const db = new Level<string, Buffer>(levelFile, { valueEncoding: 'buffer' });
 
   // Interval to print progress
@@ -60,17 +56,7 @@ export async function downloadModel(lang: string, rootFolder = DEFAULT_WECOSSIM_
     downloadedBytes += chunk.length;
   });
 
-  for await (const line of rl) {
-    const parts = line.split(' ');
-    if (parts.length < 2) {
-      continue;
-    }
-    const key = parts[0];
-    const vector = new Float32Array(parts.slice(1).map(Number));
-    const buffer = Buffer.from(vector.buffer); // Convert Float32Array to Buffer
-
-    await db.put(key!, buffer);
-  }
+  await parseVecFile(teeStream, db);
 
   clearInterval(progressInterval);
   await downloadStream;
@@ -83,11 +69,15 @@ export async function getVec(db: Level<string, Buffer>, word: string) {
   return buf ? [...new Float32Array(buf.buffer)] : null;
 }
 
+type LineParser = (line: string) => Promise<void> | void;
 
-export async function modelToLevel(modelPath: string, levelPath: string, { verbose = false } = {}) {
-  const db = new Level<string, Buffer>(levelPath, { valueEncoding: 'buffer' });
+export async function parseVecFile(
+  input: NodeJS.ReadableStream,
+  db: Level<string, Buffer>,
+  verbose = false
+) {
   const gunzip = createGunzip();
-  const stream = oldFs.createReadStream(modelPath).pipe(gunzip);
+  const stream = input.pipe(gunzip);
   const rl = createInterface({ input: stream });
 
   for await (const line of rl) {
@@ -100,12 +90,18 @@ export async function modelToLevel(modelPath: string, levelPath: string, { verbo
     if (verbose) {
       console.log(`Writing key ${key}: [${vector.slice(0, 5).join(', ')}...]`);
     }
-    const buffer = Buffer.from(vector.buffer); // Convert Float32Array to Buffer
+    const buffer = Buffer.from(vector.buffer);
 
     await db.put(key!, buffer);
   }
+}
 
-  db.close();
+export async function modelToLevel(modelPath: string, levelPath: string, { verbose = false } = {}) {
+  const db = new Level<string, Buffer>(levelPath, { valueEncoding: 'buffer' });
+  const stream = oldFs.createReadStream(modelPath);
+
+  await parseVecFile(stream, db, verbose);
+  await db.close();
 
   return db;
 }
