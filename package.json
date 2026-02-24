@@ -1,6 +1,6 @@
 {
   "name": "we-cos-sim",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "description": "Use word embeddings to calculate the cosine similarity of words",
   "main": "./dist/index.js",
