@@ -1,5 +1,7 @@
 # we-cos-sim
 
+> **Deprecated:** This package has been replaced by [embeddings-cos-sim](https://github.com/andrefs/embeddings-cos-sim). See the [embeddings-cos-sim README](../embeddings-cos-sim/README.md) for more information.
+
 we-cos-sim is a tool for calculating the cosine similarity between words using word embeddings. It leverages FastText vectors to provide semantic similarity scores.
 
 ## Features
